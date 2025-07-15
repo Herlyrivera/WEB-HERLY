@@ -18,13 +18,13 @@ def load_scripts():
     with open(DB, "r") as f:
         return json.load(f)
 
-def save_script(nombre, codigo):
+def save_script(nombre, codigo, descripcion=""):
     filename = nombre.lower().replace(" ", "-") + ".lsp"
     filepath = os.path.join("scripts", filename)
     with open(filepath, "w") as f:
         f.write(codigo)
     data = load_scripts()
-    data.append({"nombre": nombre, "archivo": filename})
+    data.append({"nombre": nombre, "archivo": filename, "descripcion": descripcion})
     with open(DB, "w") as f:
         json.dump(data, f)
 
@@ -37,8 +37,9 @@ def index():
     if request.method == "POST":
         nombre = request.form.get("nombre")
         codigo = request.form.get("codigo")
+        descripcion = request.form.get("descripcion", "")
         if nombre and codigo:
-            save_script(nombre, codigo)
+            save_script(nombre, codigo, descripcion)
             return redirect("/")
 
     scripts = load_scripts()
@@ -49,7 +50,11 @@ def index():
                 contenido = f.read()
         except:
             contenido = "(error al leer archivo)"
-        bloques.append({"nombre": s["nombre"], "codigo": contenido})
+        bloques.append({
+            "nombre": s["nombre"], 
+            "codigo": contenido,
+            "descripcion": s.get("descripcion", "")
+        })
 
     suggestions = load_suggestions()  # Carga las sugerencias
     return render_template("index.html", bloques=bloques, suggestions=suggestions)
@@ -81,6 +86,84 @@ def eliminar_sugerencia(suggestion_id):
         with open(SUGGESTIONS_DB, "w") as f:
             json.dump(suggestions, f)
 
+    return redirect("/#sugerencias")
+
+@app.route("/eliminar/<int:script_id>", methods=["POST"])
+def eliminar_lisp(script_id):
+    scripts = load_scripts()
+    if 0 <= script_id < len(scripts):
+        # Eliminar archivo físico
+        try:
+            os.remove(os.path.join("scripts", scripts[script_id]["archivo"]))
+        except:
+            pass
+        # Eliminar de la lista
+        scripts.pop(script_id)
+        with open(DB, "w") as f:
+            json.dump(scripts, f)
+    return redirect("/")
+
+@app.route("/editar/<int:script_id>", methods=["POST"])
+def editar_lisp(script_id):
+    nombre = request.form.get("nombre")
+    codigo = request.form.get("codigo")
+    descripcion = request.form.get("descripcion", "")
+    
+    if nombre and codigo:
+        scripts = load_scripts()
+        if 0 <= script_id < len(scripts):
+            # Actualizar archivo
+            filepath = os.path.join("scripts", scripts[script_id]["archivo"])
+            with open(filepath, "w") as f:
+                f.write(codigo)
+            # Actualizar datos
+            scripts[script_id]["nombre"] = nombre
+            scripts[script_id]["descripcion"] = descripcion
+            with open(DB, "w") as f:
+                json.dump(scripts, f)
+    return redirect("/")
+
+@app.route("/sugerencia", methods=["POST"])
+def nueva_sugerencia():
+    nombre = request.form.get("nombre")
+    titulo = request.form.get("titulo")
+    contenido = request.form.get("contenido")
+    
+    if nombre and titulo and contenido:
+        suggestions = load_suggestions()
+        from datetime import datetime
+        nueva = {
+            "id": len(suggestions),
+            "nombre": nombre,
+            "titulo": titulo,
+            "contenido": contenido,
+            "fecha": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "respuestas": []
+        }
+        suggestions.append(nueva)
+        with open(SUGGESTIONS_DB, "w") as f:
+            json.dump(suggestions, f)
+    
+    return redirect("/#sugerencias")
+
+@app.route("/responder/<int:suggestion_id>", methods=["POST"])
+def responder_sugerencia(suggestion_id):
+    nombre = request.form.get("nombre")
+    respuesta = request.form.get("respuesta")
+    
+    if nombre and respuesta:
+        suggestions = load_suggestions()
+        if 0 <= suggestion_id < len(suggestions):
+            from datetime import datetime
+            nueva_respuesta = {
+                "nombre": nombre,
+                "respuesta": respuesta,
+                "fecha": datetime.now().strftime("%d/%m/%Y %H:%M")
+            }
+            suggestions[suggestion_id]["respuestas"].append(nueva_respuesta)
+            with open(SUGGESTIONS_DB, "w") as f:
+                json.dump(suggestions, f)
+    
     return redirect("/#sugerencias")
 
 if __name__ == "__main__":

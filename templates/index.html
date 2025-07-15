@@ -62,16 +62,18 @@
         <!-- Aquí debería ir el bucle para mostrar los bloques -->
         {% for b in bloques %}
         <div class="code-block">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>{{ loop.index }}. {{ b.nombre }}</h3>
-            <button onclick="copiarCodigo('{{ b.codigo | e }}')" class="btn-small btn-copy">📋 Copiar código</button>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <h3 style="margin: 0; flex: 1;">{{ loop.index }}. {{ b.nombre }}</h3>
             <div class="btn-actions">
-              <button onclick="editarLisp({{ loop.index0 }}, '{{ b.nombre|e }}', '{{ b.descripcion|e }}', '{{ b.codigo|e }}')" class="btn-small btn-edit">✏️ Editar</button>
+              <button onclick="copiarCodigo(`{{ b.codigo | replace('`', '\\`') }}`)" class="btn-small btn-copy">📋 Copiar</button>
+              <button onclick="editarLisp({{ loop.index0 }}, `{{ b.nombre | replace('`', '\\`') }}`, `{{ b.descripcion | replace('`', '\\`') }}`, `{{ b.codigo | replace('`', '\\`') }}`)" class="btn-small btn-edit">✏️ Editar</button>
               <button onclick="eliminarLisp({{ loop.index0 }})" class="btn-small btn-delete">🗑️ Eliminar</button>
             </div>
           </div>
+          {% if b.descripcion %}
+          <p><em>{{ b.descripcion }}</em></p>
+          {% endif %}
           <pre>{{ b.codigo }}</pre>
-          <small>{{ b.descripcion }}</small>
         </div>
         {% endfor %}
 
@@ -124,8 +126,8 @@
             <p>{{ suggestion.contenido }}</p>
           </div>
           <div class="btn-actions">
-            <button onclick="editarSugerencia({{ suggestion.id }}, '{{ suggestion.titulo|e }}', '{{ suggestion.contenido|e }}')" class="btn-small btn-edit">✏️</button>
-            <button onclick="eliminarSugerencia({{ suggestion.id }})" class="btn-small btn-delete">🗑️</button>
+            <button onclick="editarSugerencia({{ loop.index0 }}, `{{ suggestion.titulo | replace('`', '\\`') }}`, `{{ suggestion.contenido | replace('`', '\\`') }}`)" class="btn-small btn-edit">✏️</button>
+            <button onclick="eliminarSugerencia({{ loop.index0 }})" class="btn-small btn-delete">🗑️</button>
           </div>
         </div>
 
@@ -147,7 +149,7 @@
         <!-- Formulario para responder -->
         <details>
           <summary>💬 Responder a esta sugerencia</summary>
-          <form method="POST" action="/responder/{{ suggestion.id }}" class="response-form">
+          <form method="POST" action="/responder/{{ loop.index0 }}" class="response-form">
             <input type="text" name="nombre" placeholder="Tu nombre" required>
             <textarea name="respuesta" placeholder="Tu respuesta o comentario..." rows="3" required></textarea>
             <button type="submit">Responder</button>
@@ -175,7 +177,7 @@
   <script>
     function copiarCodigo(codigo) {
       navigator.clipboard.writeText(codigo).then(function() {
-        alert('¡Código copiado al portapapeles! Ahora puedes pegarlo en tu editor.');
+        alert('¡Código copiado al portapapeles!');
       }, function(err) {
         const textarea = document.createElement('textarea');
         textarea.value = codigo;
@@ -183,16 +185,16 @@
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        alert('¡Código copiado al portapapeles! Ahora puedes pegarlo en tu editor.');
+        alert('¡Código copiado al portapapeles!');
       });
     }
 
     function editarLisp(index, nombre, descripcion, codigo) {
       document.querySelector('input[name="nombre"]').value = nombre;
-      document.querySelector('textarea[name="descripcion"]').value = descripcion;
+      document.querySelector('textarea[name="descripcion"]').value = descripcion || '';
       document.querySelector('textarea[name="codigo"]').value = codigo;
 
-      const form = document.querySelector('form');
+      const form = document.querySelector('#subir form');
       form.action = '/editar/' + index;
       form.querySelector('button').textContent = 'Actualizar código';
       document.getElementById('subir').scrollIntoView();
@@ -201,6 +203,42 @@
     function eliminarLisp(index) {
         if (confirm('¿Estás seguro de que quieres eliminar este LISP?')) {
             fetch('/eliminar/' + index, {
+                method: 'POST',
+            }).then(() => {
+                location.reload();
+            });
+        }
+    }
+
+    function editarSugerencia(index, titulo, contenido) {
+        const nuevoTitulo = prompt('Nuevo título:', titulo);
+        const nuevoContenido = prompt('Nuevo contenido:', contenido);
+        
+        if (nuevoTitulo && nuevoContenido) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/editar_sugerencia/' + index;
+            
+            const inputTitulo = document.createElement('input');
+            inputTitulo.type = 'hidden';
+            inputTitulo.name = 'titulo';
+            inputTitulo.value = nuevoTitulo;
+            
+            const inputContenido = document.createElement('input');
+            inputContenido.type = 'hidden';
+            inputContenido.name = 'contenido';
+            inputContenido.value = nuevoContenido;
+            
+            form.appendChild(inputTitulo);
+            form.appendChild(inputContenido);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function eliminarSugerencia(index) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta sugerencia?')) {
+            fetch('/eliminar_sugerencia/' + index, {
                 method: 'POST',
             }).then(() => {
                 location.reload();
