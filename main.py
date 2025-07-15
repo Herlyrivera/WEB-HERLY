@@ -167,4 +167,4 @@ def responder_sugerencia(suggestion_id):
     return redirect("/#sugerencias")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)  # Cambié el puerto a 5000 para desarrollo
+    app.run(host="0.0.0.0", port=400)  # Cambié el puerto a 5000 para desarrollo
