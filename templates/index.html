@@ -10,17 +10,28 @@
     pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; }
     .code-block { margin-bottom: 3rem; }
     .btn-small { 
-      padding: 0.3rem 0.6rem; 
+      padding: 0.4rem 0.8rem; 
       font-size: 0.8rem; 
       margin-left: 0.3rem; 
       border-radius: 4px;
       border: none;
       cursor: pointer;
+      min-width: 60px;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .btn-copy { background-color: #28a745; color: white; }
     .btn-edit { background-color: #007bff; color: white; }
     .btn-delete { background-color: #dc3545; color: white; }
-    .btn-actions { display: flex; gap: 0.3rem; align-items: center; }
+    .btn-actions { 
+      display: flex; 
+      gap: 0.3rem; 
+      align-items: center; 
+      flex-shrink: 0;
+      margin-left: 1rem;
+    }
     .suggestion-card { 
       background: #f8f9fa; 
       border-left: 4px solid #007bff; 
@@ -171,6 +182,9 @@
     <div style="text-align: center; margin-bottom: 1rem;">
       <em style="font-size: 0.9rem; color: #666; font-style: italic;">"Juntos construimos el futuro de tu empresa."</em>
     </div>
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <strong style="color: #007bff;">Página web creada por HERLY DAVID RIVERA GOMEZ</strong>
+    </div>
     <small><a href="#">Privacidad</a> • <a href="#">Términos</a></small>
   </footer>
 
@@ -190,22 +204,34 @@
     }
 
     function editarLisp(index, nombre, descripcion, codigo) {
-      document.querySelector('input[name="nombre"]').value = nombre;
-      document.querySelector('textarea[name="descripcion"]').value = descripcion || '';
-      document.querySelector('textarea[name="codigo"]').value = codigo;
+      try {
+        document.querySelector('input[name="nombre"]').value = nombre;
+        document.querySelector('textarea[name="descripcion"]').value = descripcion || '';
+        document.querySelector('textarea[name="codigo"]').value = codigo;
 
-      const form = document.querySelector('#subir form');
-      form.action = '/editar/' + index;
-      form.querySelector('button').textContent = 'Actualizar código';
-      document.getElementById('subir').scrollIntoView();
+        const form = document.querySelector('#subir form');
+        form.action = '/editar/' + index;
+        form.querySelector('button').textContent = 'Actualizar código';
+        document.getElementById('subir').scrollIntoView({behavior: 'smooth'});
+      } catch (error) {
+        console.error('Error al editar LISP:', error);
+        alert('Error al cargar los datos para editar');
+      }
     }
 
     function eliminarLisp(index) {
         if (confirm('¿Estás seguro de que quieres eliminar este LISP?')) {
             fetch('/eliminar/' + index, {
                 method: 'POST',
-            }).then(() => {
-                location.reload();
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error al eliminar el LISP');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión al eliminar el LISP');
             });
         }
     }
@@ -240,8 +266,15 @@
         if (confirm('¿Estás seguro de que quieres eliminar esta sugerencia?')) {
             fetch('/eliminar_sugerencia/' + index, {
                 method: 'POST',
-            }).then(() => {
-                location.reload();
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error al eliminar la sugerencia');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión al eliminar la sugerencia');
             });
         }
     }
