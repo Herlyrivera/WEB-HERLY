@@ -54,6 +54,39 @@
     }
     .response-meta { font-size: 0.75rem; color: #555; }
     .response-form { margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 6px; }
+    details { 
+      margin: 1rem 0; 
+      border: 1px solid #ddd; 
+      border-radius: 8px; 
+      overflow: hidden;
+    }
+    details summary { 
+      background: #f8f9fa; 
+      padding: 1rem; 
+      cursor: pointer; 
+      font-weight: 600;
+      border-bottom: 1px solid #ddd;
+    }
+    details[open] summary { 
+      background: #e9ecef; 
+    }
+    details > div { 
+      padding: 0 1rem 1rem 1rem; 
+    }
+    kbd { 
+      background: #f4f4f4; 
+      border: 1px solid #ccc; 
+      border-radius: 3px; 
+      padding: 0.2rem 0.4rem; 
+      font-family: monospace; 
+      font-size: 0.9em;
+    }
+    code { 
+      background: #f4f4f4; 
+      padding: 0.2rem 0.4rem; 
+      border-radius: 3px; 
+      font-family: monospace;
+    }
   </style>
 </head>
 <body>
@@ -61,6 +94,7 @@
     <ul><li><strong>DATABANK MKS LISP</strong></li></ul>
     <ul>
       <li><a href="#">Inicio</a></li>
+      <li><a href="#como-usar">¿Cómo usar?</a></li>
       <li><a href="#subir">Subir LISP</a></li>
       <li><a href="#sugerencias">Sugerencias</a></li>
     </ul>
@@ -95,6 +129,104 @@
       </section>
     </div>
   </main>
+
+  <section id="como-usar" class="container">
+    <article>
+      <hgroup>
+        <h2>📚 ¿Cómo usar los archivos LISP en AutoCAD?</h2>
+        <h3>Guía paso a paso para implementar los códigos en tu proyecto</h3>
+      </hgroup>
+      
+      <div class="grid">
+        <div>
+          <h4>🔍 ¿Qué son los archivos LISP?</h4>
+          <p>Los archivos LISP son programas que extienden las funcionalidades de AutoCAD, permitiendo automatizar tareas, crear comandos personalizados y realizar cálculos complejos.</p>
+        </div>
+        <div>
+          <h4>⚡ Ventajas principales</h4>
+          <ul>
+            <li>Automatización de tareas repetitivas</li>
+            <li>Comandos personalizados</li>
+            <li>Mayor eficiencia en el trabajo</li>
+            <li>Cálculos automáticos precisos</li>
+          </ul>
+        </div>
+      </div>
+
+      <details>
+        <summary><strong>📋 Paso 1: Copiar el código LISP</strong></summary>
+        <div style="padding: 1rem 0;">
+          <p>• Haz clic en el botón <span style="background: #28a745; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">📋 Copiar</span> del LISP que quieras usar</p>
+          <p>• El código se copiará automáticamente al portapapeles de tu computadora</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>💾 Paso 2: Crear el archivo en tu PC</strong></summary>
+        <div style="padding: 1rem 0;">
+          <p>• Abre el <strong>Bloc de notas</strong> (Notepad) en Windows</p>
+          <p>• Pega el código LISP copiado usando <kbd>Ctrl+V</kbd></p>
+          <p>• Guarda el archivo con extensión <code>.lsp</code>, por ejemplo: <code>micomando.lsp</code></p>
+          <p><strong>⚠️ Importante:</strong> Al guardar, cambia "Tipo de archivo" a "Todos los archivos" para que guarde correctamente la extensión <code>.lsp</code></p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>🚀 Paso 3: Cargar el LISP en AutoCAD</strong></summary>
+        <div style="padding: 1rem 0;">
+          <h5>Método 1: Comando APPLOAD (Recomendado)</h5>
+          <p>• En AutoCAD, escribe <code>APPLOAD</code> y presiona Enter</p>
+          <p>• Se abre el cuadro "Load/Unload Applications"</p>
+          <p>• Haz clic en "Add..." y busca tu archivo <code>.lsp</code></p>
+          <p>• Selecciona el archivo y haz clic en "Load"</p>
+          
+          <h5>Método 2: Arrastrar y soltar (Más rápido)</h5>
+          <p>• Arrastra el archivo <code>.lsp</code> desde el explorador hacia AutoCAD</p>
+          <p>• AutoCAD cargará automáticamente el archivo</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>▶️ Paso 4: Ejecutar el comando LISP</strong></summary>
+        <div style="padding: 1rem 0;">
+          <p>• Una vez cargado, el LISP creará nuevos comandos personalizados</p>
+          <p>• Los comandos aparecen descritos en los comentarios del código</p>
+          <p>• Escribe el nombre del comando en la línea de comandos de AutoCAD</p>
+          <p><strong>Ejemplo:</strong> Si el comando se llama <code>CIRCULO</code>, simplemente escribe <code>CIRCULO</code> y presiona Enter</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>🔧 Consejos profesionales</strong></summary>
+        <div style="padding: 1rem 0;">
+          <div class="grid">
+            <div>
+              <h6>📁 Organización</h6>
+              <p>• Crea una carpeta específica: <code>C:\MisLISP\</code></p>
+              <p>• Mantén organizados tus archivos por categorías</p>
+            </div>
+            <div>
+              <h6>🔄 Carga automática</h6>
+              <p>• Copia los <code>.lsp</code> a la carpeta de soporte de AutoCAD</p>
+              <p>• Se cargarán automáticamente al abrir AutoCAD</p>
+            </div>
+          </div>
+          <div class="grid">
+            <div>
+              <h6>💾 Respaldo</h6>
+              <p>• Siempre haz copias de seguridad de tus LISP personalizados</p>
+              <p>• Guarda una copia en la nube</p>
+            </div>
+            <div>
+              <h6>🛡️ Seguridad</h6>
+              <p>• Solo carga archivos LISP de fuentes confiables</p>
+              <p>• Verifica compatibilidad con tu versión de AutoCAD</p>
+            </div>
+          </div>
+        </div>
+      </details>
+    </article>
+  </section>
 
   <section id="subir" class="container">
     <article>
