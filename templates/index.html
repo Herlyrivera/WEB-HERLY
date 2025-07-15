@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DATABANK MKS LISP</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <style>
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; }
+    .code-block { margin-bottom: 3rem; }
+    .btn-small { 
+      padding: 0.3rem 0.6rem; 
+      font-size: 0.8rem; 
+      margin-left: 0.3rem; 
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-copy { background-color: #28a745; color: white; }
+    .btn-edit { background-color: #007bff; color: white; }
+    .btn-delete { background-color: #dc3545; color: white; }
+    .btn-actions { display: flex; gap: 0.3rem; align-items: center; }
+    .suggestion-card { 
+      background: #f8f9fa; 
+      border-left: 4px solid #007bff; 
+      padding: 1rem; 
+      margin: 1rem 0; 
+      border-radius: 0 8px 8px 0; 
+    }
+    .suggestion-title { color: #007bff; margin-bottom: 0.5rem; }
+    .suggestion-meta { font-size: 0.8rem; color: #666; margin-bottom: 1rem; }
+    .response-card { 
+      background: #e9ecef; 
+      padding: 0.8rem; 
+      margin: 0.5rem 0; 
+      border-radius: 6px; 
+      border-left: 3px solid #28a745; 
+    }
+    .response-meta { font-size: 0.75rem; color: #555; }
+    .response-form { margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul><li><strong>DATABANK MKS LISP</strong></li></ul>
+    <ul>
+      <li><a href="#">Inicio</a></li>
+      <li><a href="#subir">Subir LISP</a></li>
+      <li><a href="#sugerencias">Sugerencias</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="grid">
+      <section>
+        <hgroup>
+          <h2>LISP GENERADOS</h2>
+          <h3>Se actualizan automáticamente al subir</h3>
+        </hgroup>
+
+        <!-- Aquí debería ir el bucle para mostrar los bloques -->
+        {% for b in bloques %}
+        <div class="code-block">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>{{ loop.index }}. {{ b.nombre }}</h3>
+            <button onclick="copiarCodigo('{{ b.codigo | e }}')" class="btn-small btn-copy">📋 Copiar código</button>
+            <div class="btn-actions">
+              <button onclick="editarLisp({{ loop.index0 }}, '{{ b.nombre|e }}', '{{ b.descripcion|e }}', '{{ b.codigo|e }}')" class="btn-small btn-edit">✏️ Editar</button>
+              <button onclick="eliminarLisp({{ loop.index0 }})" class="btn-small btn-delete">🗑️ Eliminar</button>
+            </div>
+          </div>
+          <pre>{{ b.codigo }}</pre>
+          <small>{{ b.descripcion }}</small>
+        </div>
+        {% endfor %}
+
+      </section>
+    </div>
+  </main>
+
+  <section id="subir" class="container">
+    <article>
+      <hgroup>
+        <h2>Sube tu propio LISP</h2>
+        <h3>Este formulario ahora funciona</h3>
+      </hgroup>
+      <form method="POST" class="grid">
+        <input type="text" name="nombre" placeholder="Nombre del LISP" required>
+        <textarea name="descripcion" placeholder="Descripción del código LISP..." rows="3"></textarea>
+        <textarea name="codigo" placeholder="Pega aquí el código LISP..." rows="10" required></textarea>
+        <button type="submit">Subir código</button>
+      </form>
+    </article>
+  </section>
+
+  <section id="sugerencias" class="container">
+    <article>
+      <hgroup>
+        <h2>💡 Sugerencias y Recomendaciones</h2>
+        <h3>Comparte tu conocimiento y ayuda a otros desarrolladores</h3>
+      </hgroup>
+
+      <!-- Formulario para nueva sugerencia -->
+      <details>
+        <summary>✨ Compartir una nueva sugerencia</summary>
+        <form method="POST" action="/sugerencia" class="response-form">
+          <input type="text" name="nombre" placeholder="Tu nombre" required>
+          <input type="text" name="titulo" placeholder="Título de tu sugerencia" required>
+          <textarea name="contenido" placeholder="Comparte tu consejo, truco o recomendación..." rows="4" required></textarea>
+          <button type="submit">Publicar sugerencia</button>
+        </form>
+      </details>
+
+      <!-- Lista de sugerencias -->
+      {% for suggestion in suggestions %}
+      <div class="suggestion-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="flex: 1;">
+            <h4 class="suggestion-title">{{ suggestion.titulo }}</h4>
+            <div class="suggestion-meta">
+              Por: <strong>{{ suggestion.nombre }}</strong> • {{ suggestion.fecha }} (Hora Colombia)
+            </div>
+            <p>{{ suggestion.contenido }}</p>
+          </div>
+          <div class="btn-actions">
+            <button onclick="editarSugerencia({{ suggestion.id }}, '{{ suggestion.titulo|e }}', '{{ suggestion.contenido|e }}')" class="btn-small btn-edit">✏️</button>
+            <button onclick="eliminarSugerencia({{ suggestion.id }})" class="btn-small btn-delete">🗑️</button>
+          </div>
+        </div>
+
+        <!-- Respuestas -->
+        {% if suggestion.respuestas %}
+        <div style="margin-top: 1rem;">
+          <h5>💬 Respuestas ({{ suggestion.respuestas|length }})</h5>
+          {% for respuesta in suggestion.respuestas %}
+          <div class="response-card">
+            <p>{{ respuesta.respuesta }}</p>
+            <div class="response-meta">
+              Por: <strong>{{ respuesta.nombre }}</strong> • {{ respuesta.fecha }} (Hora Colombia)
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Formulario para responder -->
+        <details>
+          <summary>💬 Responder a esta sugerencia</summary>
+          <form method="POST" action="/responder/{{ suggestion.id }}" class="response-form">
+            <input type="text" name="nombre" placeholder="Tu nombre" required>
+            <textarea name="respuesta" placeholder="Tu respuesta o comentario..." rows="3" required></textarea>
+            <button type="submit">Responder</button>
+          </form>
+        </details>
+      </div>
+      {% endfor %}
+
+      {% if not suggestions %}
+      <div style="text-align: center; padding: 2rem; color: #666;">
+        <p>🌟 ¡Sé el primero en compartir una sugerencia!</p>
+        <p>Ayuda a otros desarrolladores con tus conocimientos sobre LISP.</p>
+      </div>
+      {% endif %}
+    </article>
+  </section>
+
+  <footer class="container">
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <em style="font-size: 0.9rem; color: #666; font-style: italic;">"Juntos construimos el futuro de tu empresa."</em>
+    </div>
+    <small><a href="#">Privacidad</a> • <a href="#">Términos</a></small>
+  </footer>
+
+  <script>
+    function copiarCodigo(codigo) {
+      navigator.clipboard.writeText(codigo).then(function() {
+        alert('¡Código copiado al portapapeles! Ahora puedes pegarlo en tu editor.');
+      }, function(err) {
+        const textarea = document.createElement('textarea');
+        textarea.value = codigo;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('¡Código copiado al portapapeles! Ahora puedes pegarlo en tu editor.');
+      });
+    }
+
+    function editarLisp(index, nombre, descripcion, codigo) {
+      document.querySelector('input[name="nombre"]').value = nombre;
+      document.querySelector('textarea[name="descripcion"]').value = descripcion;
+      document.querySelector('textarea[name="codigo"]').value = codigo;
+
+      const form = document.querySelector('form');
+      form.action = '/editar/' + index;
+      form.querySelector('button').textContent = 'Actualizar código';
+      document.getElementById('subir').scrollIntoView();
+    }
+
+    function eliminarLisp(index) {
+        if (confirm('¿Estás seguro de que quieres eliminar este LISP?')) {
+            fetch('/eliminar/' + index, {
+                method: 'POST',
+            }).then(() => {
+                location.reload();
+            });
+        }
+    }
+  </script>
+</body>
+</html>
